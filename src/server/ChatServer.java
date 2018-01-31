@@ -1,0 +1,68 @@
+package server;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.math.BigInteger;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Vector;
+
+import client.ChatClient;
+import decrypt.Decryptor;
+
+import key.PublicKey;
+
+public class ChatServer extends Thread {
+
+	// the port is the date of the RSA MIT brevet
+	public static final int PORT = 1983;
+	private ServerSocket ss;
+	private ChatClient cc;
+	
+	public ChatServer() {
+		cc = new ChatClient();
+	}
+
+	@Override
+	public void run() {
+		try {
+			System.out.println("Secure server RSA hello.");
+			ss = new ServerSocket(PORT);
+			boolean isRunning = true;
+			cc.start();
+			while (isRunning) {
+				Socket s = ss.accept();
+				// you are receiving message
+				ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+				Object message;
+				try {
+					while ( (message = ois.readObject()) != null){
+						if (message instanceof String){
+							if (((String) message).matches("(^/\\w+$|^/\\w+\\s.*$)")){
+								// the message is a command
+								if (((String) message).startsWith("/pubk")){
+									String[] cmd_publick = ((String) message).split(" ");
+									cc.setInterlocutor_pubk(new PublicKey(new BigInteger(cmd_publick[1]), new BigInteger(cmd_publick[2])));
+								}
+							}
+						} else if (message instanceof Vector<?>) {
+							Vector<BigInteger> crypted = (Vector<BigInteger>) message;
+							String decrypted = Decryptor.decrypt(crypted, cc.getPrivk());
+							System.out.println("> "+decrypted);
+						}
+					}
+				} catch (ClassNotFoundException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		} finally {
+			cc.interrupt();
+			System.out.println("Secure server RSA goodbye.");
+		}
+	}
+	
+	
+
+}

@@ -103,7 +103,6 @@ public class PrivateKey {
 			} while ( !(tmp.compareTo(new BigInteger("2")) == 1 && tmp.compareTo(m) == -1) && tmp.compareTo(m) == -1);
 			triple.u = tmp;
 		}
-		System.err.println(n + " " + triple.u);
 		return triple;
 	}
 

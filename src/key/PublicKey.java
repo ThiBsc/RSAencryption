@@ -47,6 +47,11 @@ public class PublicKey {
 		} while (e == null);
 	}
 	
+	public PublicKey(BigInteger n, BigInteger e){
+		this.n = n;
+		this.e = e;
+	}
+	
 	public BigInteger getE(){
 		return e;
 	}
