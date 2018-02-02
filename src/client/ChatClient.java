@@ -36,7 +36,8 @@ public class ChatClient extends Thread {
 	
 	@Override
 	public void run() {
-		System.out.println("Secure client RSA hello.");
+		System.out.println("Secure client RSA started");
+		System.out.println(ConsoleColors.CYAN + "-------------------------" + ConsoleColors.RESET);
 		Scanner sc = new Scanner(System.in);
 		running = true;
 		while (running) {
@@ -49,6 +50,8 @@ public class ChatClient extends Thread {
 					try {
 						writer.close();
 						server.close();
+						server = null;
+						interlocutor_pubk = null;
 						running = false;
 					} catch (IOException e) {
 						System.err.println(e.getMessage());
@@ -59,7 +62,7 @@ public class ChatClient extends Thread {
 						writer = new ObjectOutputStream(server.getOutputStream());
 						writer.writeObject("/pubk "+pubk.getPublicPair().n.toString()+" "+pubk.getPublicPair().e.toString());
 						writer.flush();
-						System.out.println("You are now in secure communication with "+server.getInetAddress().toString());
+						System.out.println("You are now in secure communication with "+server.getInetAddress().getHostAddress());
 					} catch (UnknownHostException e) {
 						System.err.println(e.getMessage());
 					} catch (IOException e) {
@@ -85,10 +88,28 @@ public class ChatClient extends Thread {
 		try {
 			writer.close();
 			server.close();
+			server = null;
+			interlocutor_pubk = null;
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 		}
 		System.out.println("Secure client RSA goodbye.");
+	}
+	
+	public void autoConnectAfterConnectionReceive(String ip_interlocutor){
+		if (server == null){
+			try {
+				server = new Socket(ip_interlocutor, ChatServer.PORT);
+				writer = new ObjectOutputStream(server.getOutputStream());
+				writer.writeObject("/pubk "+pubk.getPublicPair().n.toString()+" "+pubk.getPublicPair().e.toString());
+				writer.flush();
+				System.out.println("You are now in secure communication with "+ip_interlocutor);
+			} catch (UnknownHostException e) {
+				System.err.println(e.getMessage());
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
 	}
 
 	public PublicKey getPubk() {
