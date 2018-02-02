@@ -1,2 +1,2 @@
 # RSAencryption
-A client server with RSA encryption algorithm
+A Peer to Peer chat with RSA encryption algorithm
