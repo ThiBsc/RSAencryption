@@ -9,8 +9,10 @@ public class Decryptor {
 	
 	public static String decrypt(Vector<BigInteger> crypted_message, PrivateKey privk){
 		String message = "";
+		BigInteger u = privk.getPrivatePair().u;
+		BigInteger n = privk.getPrivatePair().n;
 		for (BigInteger bi : crypted_message){
-			message += String.valueOf( (char) bi.modPow(privk.getPrivatePair().u, privk.getPrivatePair().n).intValue() );
+			message += String.valueOf( (char) bi.modPow(u, n).intValue() );
 		}
 		return message;
 	}
